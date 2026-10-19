@@ -2,7 +2,7 @@
 
 A CLI utility for managing environment files. It checks synchronization between `.env` and `.env.example`, detects leaked credentials and API keys, and generates sanitized `.env.example` templates.
 
-[![Crates.io](https://img.shields.io/crates/v/envguard.svg)](https://crates.io/crates/envguard)
+[![Crates.io](https://img.shields.io/crates/v/envguard-cli.svg)](https://crates.io/crates/envguard-cli)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
 
 ```
@@ -31,24 +31,24 @@ EnvGuard is designed with a strict **local-only, zero-trust** philosophy:
 
 ### From crates.io
 ```bash
-cargo install envguard
+cargo install envguard-cli
 ```
 
 ### Pre-built Binaries
-Download the binary for your platform from [Releases](https://github.com/username/envguard/releases).
+Download the binary for your platform from [Releases](https://github.com/hariawann/envguard/releases).
 
 **Linux / macOS:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/username/envguard/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/hariawann/envguard/main/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/username/envguard/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/hariawann/envguard/main/install.ps1 | iex
 ```
 
 *Manual Windows Setup (Standalone .exe):*
-1. Download `envguard-windows.zip` from [Releases](https://github.com/username/envguard/releases) and extract `envguard.exe`.
+1. Download `envguard-windows.zip` from [Releases](https://github.com/hariawann/envguard/releases) and extract `envguard.exe`.
 2. Place `envguard.exe` into a folder of your choice (e.g., `C:\tools`).
 3. Add that folder to your User `PATH` (run once in PowerShell):
    ```powershell
@@ -57,7 +57,7 @@ irm https://raw.githubusercontent.com/username/envguard/main/install.ps1 | iex
 
 ### From Source
 ```bash
-git clone https://github.com/username/envguard.git
+git clone https://github.com/hariawann/envguard.git
 cd envguard
 cargo install --path .
 ```

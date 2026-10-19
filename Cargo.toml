@@ -1,12 +1,18 @@
 [package]
-name = "envguard"
+name = "envguard-cli"
 version = "0.1.0"
 edition = "2024"
-description = "A blazing-fast CLI tool to check .env sync, detect leaked secrets, and auto-generate .env.example"
+description = "A CLI tool to check .env synchronization, detect leaked secrets, and generate sanitized .env.example templates"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+repository = "https://github.com/hariawann/envguard"
+homepage = "https://github.com/hariawann/envguard"
 keywords = ["env", "dotenv", "security", "linter", "cli"]
 categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "envguard"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.6.7", features = ["derive"] }
