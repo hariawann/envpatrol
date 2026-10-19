@@ -1,118 +1,152 @@
-# 🛡️ EnvGuard
+# envguard
 
-<p align="center">
-  <strong>Blazing-fast CLI tool to keep your <code>.env</code> files in sync, detect leaked API secrets, and auto-generate safe templates.</strong>
-</p>
+A CLI utility for managing environment files. It checks synchronization between `.env` and `.env.example`, detects leaked credentials and API keys, and generates sanitized `.env.example` templates.
 
-<p align="center">
-  <a href="https://crates.io/crates/envguard"><img src="https://img.shields.io/badge/crates.io-v0.1.0-orange.svg" alt="Crates.io"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg" alt="License"></a>
-  <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.80%2B-blueviolet.svg" alt="Rust 1.80+"></a>
-  <img src="https://img.shields.io/badge/speed-%3C5ms-brightgreen.svg" alt="Speed">
-</p>
+[![Crates.io](https://img.shields.io/crates/v/envguard.svg)](https://crates.io/crates/envguard)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
 
----
+```
+$ envguard check
+🔍 Comparing environment files...
+  Target:  .env
+  Example: .env.example
 
-## 💥 The Problem
-
-In modern software development across teams:
-1. **Out of Sync `.env`:** You add `STRIPE_WEBHOOK_SECRET` to your local `.env`, but forget to update `.env.example`. Your teammates pull the latest code and their app immediately crashes.
-2. **Accidental Secret Leaks:** Someone clones `.env` to `.env.example` to commit it, but forgets to clear an active OpenAI or AWS token. Automated scrapers find it within seconds.
-3. **Manual Tedium:** Manually copying keys and erasing secret values by hand is repetitive and error-prone.
+❌ OUT OF SYNC DETECTED!
+[+] Missing in example template: (2 keys)
+    + REDIS_HOST
+    + REDIS_PASSWORD
+```
 
 ---
 
-## ✨ Features
+## Privacy & Security (Zero Telemetry)
 
-- 🔍 **`envguard check`**: Compares `.env` against `.env.example` and highlights missing keys with colored diffs. Returns exit code `1` on failure (ideal for CI/CD and pre-commit hooks).
-- 🚨 **`envguard scan`**: Scans files for exposed API keys (OpenAI, Stripe, AWS, GitHub PATs, JWTs, Private Keys, and suspicious passwords) using high-precision regex & entropy heuristics.
-- 🪄 **`envguard generate`**: Automatically reads your active `.env` and generates a clean `.env.example`, masking all sensitive credentials while preserving comments and safe defaults (e.g. `PORT=3000`, `127.0.0.1`).
+EnvGuard is designed with a strict **local-only, zero-trust** philosophy:
+- **100% Offline:** Runs entirely on your local machine.
+- **Zero Network Calls:** Contains no HTTP client, telemetry, or remote analytics of any kind. You can inspect `Cargo.toml` to verify zero networking dependencies.
+- **Memory-Only Processing:** Secret scans run strictly in-memory using local regex matching. No sensitive data is ever written to disk, sent over sockets, or exfiltrated.
+- **Masked Previews:** Terminal output automatically masks detected tokens (e.g., `sk-...348`) to prevent shoulder surfing or terminal session recording leaks.
 
----
+## Installation
 
-## ⚡ Quick Start
-
-### 1. Installation
-
-#### Via Cargo (Rust Users)
+### From crates.io
 ```bash
 cargo install envguard
 ```
 
-#### Via One-Line Script (Linux / macOS)
+### Pre-built Binaries
+Download the binary for your platform from [Releases](https://github.com/username/envguard/releases).
+
+**Linux / macOS:**
 ```bash
 curl -sSL https://raw.githubusercontent.com/username/envguard/main/install.sh | bash
 ```
 
-#### Via PowerShell (Windows)
+**Windows (PowerShell):**
 ```powershell
 irm https://raw.githubusercontent.com/username/envguard/main/install.ps1 | iex
 ```
 
+*Manual Windows Setup (Standalone .exe):*
+1. Download `envguard-windows.zip` from [Releases](https://github.com/username/envguard/releases) and extract `envguard.exe`.
+2. Place `envguard.exe` into a folder of your choice (e.g., `C:\tools`).
+3. Add that folder to your User `PATH` (run once in PowerShell):
+   ```powershell
+   [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools", "User")
+   ```
+
+### From Source
+```bash
+git clone https://github.com/username/envguard.git
+cd envguard
+cargo install --path .
+```
+
 ---
 
-## 🚀 Usage
+## Commands
 
-### 1. Check Synchronization
-Verify that `.env` and `.env.example` have the exact same set of environment keys:
+### `envguard check`
+Compares keys between two environment files to ensure they remain synchronized.
+
 ```bash
 envguard check
 ```
 
-Specify custom paths:
-```bash
-envguard check --env .env.local --example .env.template
-```
+**Options:**
+- `-e, --env <PATH>`: Path to local `.env` file (default: `.env`)
+- `-x, --example <PATH>`: Path to example file (default: `.env.example`)
 
-### 2. Scan for Leaked Secrets
-Ensure no active secrets or private keys were accidentally committed or included in your example templates:
+**Exit codes:**
+- `0`: Files are synchronized.
+- `1`: Missing keys detected or file read error.
+
+---
+
+### `envguard scan`
+Inspects an environment file locally for plaintext credentials before committing to version control. Uses deterministic regular expressions matched in-memory—no data leaves your machine.
+
 ```bash
 envguard scan --path .env.example
 ```
 
-### 3. Auto-Generate `.env.example`
-Generate a sanitized `.env.example` template straight from your local `.env`:
-```bash
-envguard generate --force
-```
+**Detects:**
+- OpenAI API keys (`sk-...`, `sk-proj-...`)
+- AWS access key IDs (`AKIA...`)
+- Stripe keys (`sk_live_...`, `rk_live_...`)
+- GitHub tokens (`ghp_...`, `github_pat_...`)
+- Google Cloud / Firebase API keys (`AIza...`)
+- Slack tokens (`xoxb-...`, `xoxp-...`)
+- Private keys (`BEGIN PRIVATE KEY`)
+- Suspicious high-length passwords in example files
 
 ---
 
-## 🤖 CI / CD Integration
+### `envguard generate`
+Generates a sanitized `.env.example` from an existing `.env` file. Retains comments, structure, and non-sensitive defaults (e.g., `PORT`, `localhost`, booleans), while replacing secrets with `your_<key>_here`.
+
+```bash
+envguard generate
+```
+
+**Options:**
+- `-s, --source <PATH>`: Source `.env` file (default: `.env`)
+- `-o, --output <PATH>`: Destination template (default: `.env.example`)
+- `-f, --force`: Overwrite destination file if it already exists
+- `--keep-defaults <BOOL>`: Retain harmless defaults like ports and hosts (default: `true`)
+
+---
+
+## CI / CD Integration
 
 ### GitHub Actions
-Add this step to your `.github/workflows/ci.yml` to prevent broken PRs from missing environment variables:
+To verify environment file synchronization on every pull request:
 
 ```yaml
 name: CI
-on: [push, pull_request]
+
+on:
+  pull_request:
+  push:
+    branches: [main]
 
 jobs:
   env-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install EnvGuard
+      - name: Install envguard
         run: cargo install envguard
-      - name: Verify Environment Sync
+      - name: Check env sync
         run: envguard check
+      - name: Scan example for leaks
+        run: envguard scan --path .env.example
 ```
 
 ---
 
-## 🛠️ Architecture
-
-Built with ❤️ in **Rust** for maximum speed and zero dependencies:
-- **CLI Parser:** [clap](https://crates.io/crates/clap) (v4)
-- **Styling:** [colored](https://crates.io/crates/colored)
-- **Pattern Matcher:** [regex](https://crates.io/crates/regex)
-
----
-
-## 📄 License
+## License
 
 Dual-licensed under either:
+- MIT License ([LICENSE-MIT](LICENSE-MIT))
 - Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
-- MIT license ([LICENSE-MIT](LICENSE-MIT))
-
-at your option.

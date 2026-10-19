@@ -177,11 +177,12 @@ pub fn scan_env_file(path: &Path) -> Result<Vec<LeakFinding>, String> {
 }
 
 fn mask_secret(val: &str) -> String {
-    if val.len() <= 6 {
+    let chars: Vec<char> = val.chars().collect();
+    if chars.len() <= 6 {
         return "***".to_string();
     }
-    let prefix = &val[..3];
-    let suffix = &val[val.len() - 3..];
+    let prefix: String = chars[..3].iter().collect();
+    let suffix: String = chars[chars.len() - 3..].iter().collect();
     format!("{}...{}", prefix, suffix)
 }
 
@@ -216,4 +217,26 @@ pub fn render_scan_result(target_path: &Path, findings: &[LeakFinding]) {
     }
 
     println!("{}", "⚠️  Action Required: Replace real keys with safe placeholders (e.g. 'your_key_here') before committing!".yellow().bold());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mask_secret_ascii_and_unicode() {
+        assert_eq!(mask_secret("sk-123456789"), "sk-...789");
+        assert_eq!(mask_secret("short"), "***");
+        // Test multi-byte UTF-8 does not panic
+        assert_eq!(mask_secret("🔑secret_word_🔒"), "🔑se...d_🔒");
+    }
+
+    #[test]
+    fn test_is_placeholder() {
+        assert!(is_placeholder("your_api_key_here"));
+        assert!(is_placeholder("dummy"));
+        assert!(is_placeholder("password"));
+        assert!(is_placeholder("<YOUR_KEY>"));
+        assert!(!is_placeholder("sk-proj-validsecrettoken999"));
+    }
 }

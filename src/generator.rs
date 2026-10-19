@@ -41,7 +41,12 @@ pub fn generate_example(
             LineItem::Entry(entry) => {
                 generated_count += 1;
                 let sanitized_val = sanitize_value(&entry.key, &entry.value, opts.keep_defaults);
-                output_lines.push(format!("{}={}", entry.key, sanitized_val));
+                let export_prefix = if entry.has_export { "export " } else { "" };
+                let comment_suffix = match &entry.inline_comment {
+                    Some(c) => format!(" # {}", c),
+                    None => String::new(),
+                };
+                output_lines.push(format!("{}{}{}{}", export_prefix, entry.key, "=", sanitized_val) + &comment_suffix);
             }
         }
     }
