@@ -10,9 +10,9 @@ use std::process;
 
 #[derive(Parser)]
 #[command(
-    name = "envguard",
+    name = "envpatrol",
     version,
-    about = "🛡️  A blazing-fast CLI tool to check .env sync, detect leaked secrets, and auto-generate .env.example",
+    about = "🛡️  A CLI tool to check .env sync, detect leaked secrets, and auto-generate .env.example",
     long_about = None
 )]
 struct Cli {
@@ -63,7 +63,7 @@ enum Commands {
 fn print_banner() {
     println!(
         "{} {}",
-        "🛡️  EnvGuard".bold().cyan(),
+        "🛡️  EnvPatrol".bold().cyan(),
         format!("v{}", env!("CARGO_PKG_VERSION")).dimmed()
     );
     println!(
@@ -162,10 +162,10 @@ fn main() {
                     }
                 }
             } else {
-                println!("{}", "Run `envguard --help` to see all available commands:".yellow());
-                println!("  • {} : Compare .env with .env.example", "envguard check".cyan());
-                println!("  • {}  : Scan for leaked secrets & API keys", "envguard scan".cyan());
-                println!("  • {}  : Auto-generate safe .env.example", "envguard generate".cyan());
+                println!("{}", "Run `envpatrol --help` to see all available commands:".yellow());
+                println!("  • {} : Compare .env with .env.example", "envpatrol check".cyan());
+                println!("  • {}  : Scan for leaked secrets & API keys", "envpatrol scan".cyan());
+                println!("  • {}  : Auto-generate safe .env.example", "envpatrol generate".cyan());
             }
         }
     }

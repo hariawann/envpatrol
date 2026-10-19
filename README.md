@@ -1,12 +1,12 @@
-# envguard
+# envpatrol
 
 A CLI utility for managing environment files. It checks synchronization between `.env` and `.env.example`, detects leaked credentials and API keys, and generates sanitized `.env.example` templates.
 
-[![Crates.io](https://img.shields.io/crates/v/envguard-cli.svg)](https://crates.io/crates/envguard-cli)
+[![Crates.io](https://img.shields.io/crates/v/envpatrol.svg)](https://crates.io/crates/envpatrol)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
 
 ```
-$ envguard check
+$ envpatrol check
 🔍 Comparing environment files...
   Target:  .env
   Example: .env.example
@@ -21,35 +21,37 @@ $ envguard check
 
 ## Privacy & Security (Zero Telemetry)
 
-EnvGuard is designed with a strict **local-only, zero-trust** philosophy:
+EnvPatrol is designed with a strict **local-only, zero-trust** philosophy:
 - **100% Offline:** Runs entirely on your local machine.
 - **Zero Network Calls:** Contains no HTTP client, telemetry, or remote analytics of any kind. You can inspect `Cargo.toml` to verify zero networking dependencies.
 - **Memory-Only Processing:** Secret scans run strictly in-memory using local regex matching. No sensitive data is ever written to disk, sent over sockets, or exfiltrated.
 - **Masked Previews:** Terminal output automatically masks detected tokens (e.g., `sk-...348`) to prevent shoulder surfing or terminal session recording leaks.
 
+---
+
 ## Installation
 
 ### From crates.io
 ```bash
-cargo install envguard-cli
+cargo install envpatrol
 ```
 
 ### Pre-built Binaries
-Download the binary for your platform from [Releases](https://github.com/hariawann/envguard/releases).
+Download the binary for your platform from [Releases](https://github.com/hariawann/envpatrol/releases).
 
 **Linux / macOS:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/hariawann/envguard/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/hariawann/envpatrol/main/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/hariawann/envguard/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/hariawann/envpatrol/main/install.ps1 | iex
 ```
 
 *Manual Windows Setup (Standalone .exe):*
-1. Download `envguard-windows.zip` from [Releases](https://github.com/hariawann/envguard/releases) and extract `envguard.exe`.
-2. Place `envguard.exe` into a folder of your choice (e.g., `C:\tools`).
+1. Download `envpatrol-windows.zip` from [Releases](https://github.com/hariawann/envpatrol/releases) and extract `envpatrol.exe`.
+2. Place `envpatrol.exe` into a folder of your choice (e.g., `C:\tools`).
 3. Add that folder to your User `PATH` (run once in PowerShell):
    ```powershell
    [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\tools", "User")
@@ -57,8 +59,8 @@ irm https://raw.githubusercontent.com/hariawann/envguard/main/install.ps1 | iex
 
 ### From Source
 ```bash
-git clone https://github.com/hariawann/envguard.git
-cd envguard
+git clone https://github.com/hariawann/envpatrol.git
+cd envpatrol
 cargo install --path .
 ```
 
@@ -66,11 +68,11 @@ cargo install --path .
 
 ## Commands
 
-### `envguard check`
+### `envpatrol check`
 Compares keys between two environment files to ensure they remain synchronized.
 
 ```bash
-envguard check
+envpatrol check
 ```
 
 **Options:**
@@ -83,11 +85,11 @@ envguard check
 
 ---
 
-### `envguard scan`
+### `envpatrol scan`
 Inspects an environment file locally for plaintext credentials before committing to version control. Uses deterministic regular expressions matched in-memory—no data leaves your machine.
 
 ```bash
-envguard scan --path .env.example
+envpatrol scan --path .env.example
 ```
 
 **Detects:**
@@ -102,11 +104,11 @@ envguard scan --path .env.example
 
 ---
 
-### `envguard generate`
+### `envpatrol generate`
 Generates a sanitized `.env.example` from an existing `.env` file. Retains comments, structure, and non-sensitive defaults (e.g., `PORT`, `localhost`, booleans), while replacing secrets with `your_<key>_here`.
 
 ```bash
-envguard generate
+envpatrol generate
 ```
 
 **Options:**
@@ -135,12 +137,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install envguard
-        run: cargo install envguard
+      - name: Install envpatrol
+        run: cargo install envpatrol
       - name: Check env sync
-        run: envguard check
+        run: envpatrol check
       - name: Scan example for leaks
-        run: envguard scan --path .env.example
+        run: envpatrol scan --path .env.example
 ```
 
 ---

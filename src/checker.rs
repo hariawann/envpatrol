@@ -124,5 +124,5 @@ pub fn render_check_result(
         println!();
     }
 
-    println!("{}", "💡 Tip: Run `envguard generate` to automatically sync your .env.example!".cyan());
+    println!("{}", "💡 Tip: Run `envpatrol generate` to automatically sync your .env.example!".cyan());
 }
